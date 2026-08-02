@@ -29,10 +29,6 @@ function NavBar() {
         <nav className="w-fit flex gap-7.5 items-center">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
-            function cn(): string | undefined {
-              throw new Error("Function not implemented.");
-            }
-
             return (
               <Link
                 key={item.href}
