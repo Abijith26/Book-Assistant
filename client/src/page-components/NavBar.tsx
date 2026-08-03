@@ -6,6 +6,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn as combineClasses } from "@/lib/utils";
+import {
+  SignInButton,
+  SignOutButton,
+  UserButton,
+  useUser,
+} from "@clerk/nextjs";
 
 const navItems = [
   { name: "Library", href: "/" },
@@ -14,6 +20,8 @@ const navItems = [
 
 function NavBar() {
   const pathname = usePathname();
+  const { isLoaded, isSignedIn, user } = useUser();
+
   return (
     <header className="w-full fixed z-50 bg-('--bg-primary')">
       <div className="wrapper navbar-height py-4 flex justify-between items-center">
@@ -24,7 +32,7 @@ function NavBar() {
             width={42}
             height={26}
           />
-          <span className="logo-text">Know-The-Book</span>
+          <span className="logo-text">Brain-The-Book</span>
         </Link>
         <nav className="w-fit flex gap-7.5 items-center">
           {navItems.map((item) => {
@@ -42,6 +50,28 @@ function NavBar() {
               </Link>
             );
           })}
+          {isLoaded && !isSignedIn && (
+            <SignInButton mode="modal">
+              <button type="button" className="nav-btn">
+                Sign In
+              </button>
+            </SignInButton>
+          )}
+          {isLoaded && isSignedIn && (
+            <>
+              <UserButton />
+              {user?.firstName && (
+                <Link href="/subscriptions" className="nav-user-name">
+                  {user.firstName}
+                </Link>
+              )}
+              <SignOutButton>
+                <button type="button" className="nav-btn">
+                  Sign Out
+                </button>
+              </SignOutButton>
+            </>
+          )}
         </nav>
       </div>
     </header>

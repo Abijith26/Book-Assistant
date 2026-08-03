@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, IBM_Plex_Serif, Mona_Sans } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/page-components/NavBar";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +28,7 @@ const monaSans = Mona_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Know-The-Book",
+  title: "Brain-The-Book",
 };
 
 export default function RootLayout({
@@ -41,8 +42,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${ibmPlexSerif.variable} ${monaSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <NavBar />
-        {children}
+        <ClerkProvider>
+          <NavBar />
+          {children}
+        </ClerkProvider>
       </body>
     </html>
   );
