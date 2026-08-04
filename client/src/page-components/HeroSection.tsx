@@ -45,7 +45,7 @@ function HeroSection() {
                 key={feature.title}
                 className={`w-auto p-2 max-h-10 flex size-14 items-center justify-center rounded-sm bg-linear-to-br  shadow-[0_12px_24px_rgba(238,100,22,0.2)] ${feature.iconClassName}`}
               >
-                <span className="text-[#141821] text-lg font-bold">
+                <span className="text-[#141821] text-lg font-semibold">
                   {feature.title}
                 </span>
               </div>
