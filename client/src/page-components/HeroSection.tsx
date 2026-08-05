@@ -37,7 +37,10 @@ function HeroSection() {
       <div className="flex gap-7 w-full sm:flex-col lg:flex-row lg:justify-center lg:items-center mt-3">
         {heroFeatures.map((feature, idx) => {
           return (
-            <div className="flex items-center justify-start gap-3">
+            <div
+              key={feature.title}
+              className="flex items-center justify-start gap-3"
+            >
               <div className="w-10 h-10 min-w-10 min-h-10 rounded-full border border-gray-400 flex items-center justify-center font-medium text-lg">
                 {idx + 1}
               </div>
