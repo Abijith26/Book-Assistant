@@ -1,0 +1,200 @@
+"use client";
+
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+
+const _AVATAR_SIZE = 96;
+// ease-out-quint for entering/exiting elements
+const EASE_OUT_QUINT = [0.23, 1, 0.32, 1] as const;
+
+export interface Card {
+  author: string;
+  content?: string;
+  id: string;
+  image: string;
+  title: string;
+}
+
+export interface ExpandableCardsProps {
+  cardClassName?: string;
+  cards: Card[];
+  className?: string;
+  onSelect?: (id: string | null) => void;
+  selectedCard?: string | null;
+}
+
+export default function ExpandableCards({
+  cards,
+  selectedCard: controlledSelected,
+  onSelect,
+  className = "",
+  cardClassName = "",
+}: ExpandableCardsProps) {
+  const [internalSelected, setInternalSelected] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const shouldReduceMotion = useReducedMotion();
+
+  const selectedCard =
+    controlledSelected === undefined ? internalSelected : controlledSelected;
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      const { scrollWidth } = scrollRef.current;
+      const { clientWidth } = scrollRef.current;
+      scrollRef.current.scrollLeft = (scrollWidth - clientWidth) / 2;
+    }
+  }, []);
+
+  const handleCardClick = (id: string) => {
+    if (selectedCard === id) {
+      if (onSelect) {
+        onSelect(null);
+      } else {
+        setInternalSelected(null);
+      }
+    } else {
+      if (onSelect) {
+        onSelect(id);
+      } else {
+        setInternalSelected(id);
+      }
+      // Center the clicked card in view
+      const cardElement = document.querySelector(`[data-card-id="${id}"]`);
+      if (cardElement) {
+        cardElement.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "center",
+        });
+      }
+    }
+  };
+
+  return (
+    <div
+      className={`flex w-full flex-col gap-4 overflow-scroll p-4 ${className}`}
+    >
+      <div
+        className="scrollbar-none mx-auto flex overflow-x-auto pt-4 pb-8"
+        ref={scrollRef}
+        style={{
+          scrollPaddingLeft: "20%",
+          scrollSnapType: "x mandatory",
+        }}
+      >
+        {cards.map((card) => (
+          <motion.div
+            animate={{
+              width: selectedCard === card.id ? "500px" : "300px",
+            }}
+            aria-label={`${card.title} card${selectedCard === card.id ? ", expanded" : ""}`}
+            aria-selected={selectedCard === card.id}
+            className={`relative mr-4 h-75 shrink-0 cursor-pointer overflow-hidden rounded-2xl border bg-background shadow-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${cardClassName}`}
+            data-card-id={card.id}
+            key={card.id}
+            layout
+            onClick={() => handleCardClick(card.id)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleCardClick(card.id);
+              }
+            }}
+            role="button"
+            style={{
+              scrollSnapAlign: "start",
+            }}
+            tabIndex={0}
+            transition={
+              shouldReduceMotion
+                ? { duration: 0 }
+                : {
+                    duration: 0.25,
+                    ease: EASE_OUT_QUINT,
+                  }
+            }
+          >
+            <div className="relative h-80 w-[320px]">
+              <img
+                alt={card.title}
+                className="aspect-square"
+                draggable={false}
+                height={320}
+                src={card.image || "/placeholder.svg"}
+                width={320}
+              />
+            </div>
+            <AnimatePresence mode="popLayout">
+              {selectedCard === card.id && (
+                <motion.div
+                  animate={
+                    shouldReduceMotion
+                      ? { opacity: 1, width: "300px" }
+                      : { filter: "blur(0px)", opacity: 1, width: "300px" }
+                  }
+                  className="absolute top-0 right-0 h-full bg-background"
+                  exit={
+                    shouldReduceMotion
+                      ? { opacity: 0, width: 0 }
+                      : { filter: "blur(5px)", opacity: 0, width: 0 }
+                  }
+                  initial={
+                    shouldReduceMotion
+                      ? { opacity: 0, width: 0 }
+                      : { filter: "blur(5px)", opacity: 0, width: 0 }
+                  }
+                  transition={
+                    shouldReduceMotion
+                      ? { duration: 0 }
+                      : {
+                          duration: 0.25,
+                          ease: EASE_OUT_QUINT,
+                          opacity: { delay: 0.1, duration: 0.2 },
+                        }
+                  }
+                >
+                  <motion.div
+                    animate={
+                      shouldReduceMotion
+                        ? { opacity: 1, x: 0 }
+                        : { filter: "blur(0px)", opacity: 1, x: 0 }
+                    }
+                    className="flex h-full flex-col justify-between p-8"
+                    exit={
+                      shouldReduceMotion
+                        ? { opacity: 0, x: 20 }
+                        : { filter: "blur(5px)", opacity: 0, x: 20 }
+                    }
+                    initial={
+                      shouldReduceMotion
+                        ? { opacity: 0, x: 20 }
+                        : { filter: "blur(5px)", opacity: 0, x: 20 }
+                    }
+                    transition={
+                      shouldReduceMotion
+                        ? { duration: 0 }
+                        : { delay: 0.2, duration: 0.2, ease: EASE_OUT_QUINT }
+                    }
+                  >
+                    <p className="text-primary-foreground text-sm">
+                      {card.content}
+                    </p>
+                    {card.author ? (
+                      <div className="mt-4 flex items-center gap-3">
+                        <div>
+                          <p className="font-semibold text-foreground">
+                            {card.author}
+                          </p>
+                        </div>
+                      </div>
+                    ) : null}
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}

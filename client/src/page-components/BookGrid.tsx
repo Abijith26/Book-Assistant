@@ -1,15 +1,9 @@
 import React from "react";
-import BookCard from "./BookCard";
+import ExpandableCards from "@/components/ui/smoothui/expandable-cards";
 import { sampleBooks } from "../lib/constants";
 
 function BookGrid() {
-  return (
-    <div>
-      {sampleBooks.map((book) => (
-        <BookCard key={book._id} book={book} />
-      ))}
-    </div>
-  );
+  return <ExpandableCards cards={sampleBooks} />;
 }
 
 export default BookGrid;
